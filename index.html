@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock Paper Scissors vs Yala v1.3</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #0a1929;
+            color: #e0e0e0;
+        }
+        
+        .game-container {
+            background-color: #112240;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #8bb8ff;
+        }
+        
+        .header h1 {
+            color: #8bb8ff;
+        }
+        
+        .score-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #1a365d;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        .score-box {
+            text-align: center;
+        }
+        
+        .score-label {
+            font-weight: bold;
+            color: #5d9aff;
+        }
+        
+        .score-value {
+            font-size: 24px;
+            margin-top: 5px;
+            color: #ffffff;
+        }
+        
+        .win-loss-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            color: #a0c5ff;
+            background-color: #1a365d;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .buttons-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #1e5799;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:hover {
+            background-color: #2a73cc;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:disabled {
+            background-color: #233a5a;
+            color: #a0a0a0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .result-container {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            height: 40px;
+            color: #ffdc5d;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .image-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        
+        .image-box {
+            text-align: center;
+            width: 256px;
+            height: 256px;
+            border: 1px solid #2c4875;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #2c4875;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+        }
+        
+        .image-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4);
+        }
+        
+        .image-box img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>Rock Paper Scissors vs A'eala (v1.3)</h1>
+            <div id="staticText">Play rock, paper, or scissors against da Yala!</div>
+        </div>
+        
+        <div class="score-container">
+            <div class="score-box">
+                <div class="score-label">Your Score:</div>
+                <div id="playerScore" class="score-value">0</div>
+            </div>
+            <div class="score-box">
+                <div class="score-label">A'eala's Score:</div>
+                <div id="yalaScore" class="score-value">0</div>
+            </div>
+        </div>
+        
+        <div class="win-loss-container">
+            <div>
+                <span>Wins: </span>
+                <span id="winLabel">0</span>
+            </div>
+            <div>
+                <span>Losses: </span>
+                <span id="lossLabel">0</span>
+            </div>
+        </div>
+        
+        <div class="result-container">
+            <div id="resultLabel">Choose your move!</div>
+        </div>
+        
+        <div class="image-container">
+            <div class="image-box" id="image1">
+                <img src="/aealaWeallyBlush.jpg" alt="Yala" id="yalaImage">
+            </div>
+        </div>
+        
+        <div class="buttons-container">
+            <button id="rockButton">Rock</button>
+            <button id="paperButton">Paper</button>
+            <button id="scissorsButton">Scissors</button>
+        </div>
+    </div>
+    
+    <script>
+        // Game variables
+        let plays = 0;
+        let wins = 0;
+        let losses = 0;
+        let playerScore = 0;
+        let yalaScore = 0;
+        let yalaSign = 0;
+		let minmaxing = false;
+		let enraged = false;
+		let wild = false;
+		let rando = false;
+		let clucked = false;
+		let far = false;
+		let mmode = false;
+		let lelogged = false;
+		let leldritch = false;
+        
+        // Arrays to track moves
+        const yala = new Array(257).fill(0);
+        const player = new Array(257).fill(0);
+        
+        // DOM Elements
+        const rockButton = document.getElementById('rockButton');
+        const paperButton = document.getElementById('paperButton');
+        const scissorsButton = document.getElementById('scissorsButton');
+        const resultLabel = document.getElementById('resultLabel');
+        const playerScoreDisplay = document.getElementById('playerScore');
+        const yalaScoreDisplay = document.getElementById('yalaScore');
+        const winLabel = document.getElementById('winLabel');
+        const lossLabel = document.getElementById('lossLabel');
+        const image1 = document.getElementById('image1');
+        const image2 = document.getElementById('image2');
+        const yalaImage = document.getElementById('yalaImage');
+		
+		function sleep(ms) {
+			return new Promise(resolve => setTimeout(resolve, ms));
+		}
+        
+        // Calculate score function (from Pascal code)
+        function calcScore(yalaPlayed, playerPlayed) {
+            if ((yalaPlayed === 1) && (playerPlayed === 3)) {
+                return 3;
+            } else if ((yalaPlayed === 3) && (playerPlayed === 1)) {
+                return -3;
+            } else if ((yalaPlayed === 1) && (playerPlayed === 2)) {
+                return -1;
+            } else if ((yalaPlayed === 2) && (playerPlayed === 1)) {
+                return 1;
+            } else if ((yalaPlayed === 3) && (playerPlayed === 2)) {
+                return 2;
+            } else if ((yalaPlayed === 2) && (playerPlayed === 3)) {
+                return -2;
+            } else {
+                return 0;
+            }
+        }
+        
+        // Yala's play function (adapted from Pascal code)
+        function play() {
+            let r = 0;
+            let p = 0;
+            let s = 0;
+            
+            // Count player's moves
+            for (let i = 0; i < plays; i++) {
+                switch (player[i]) {
+                    case 1: r++; break;
+                    case 2: p++; break;
+                    case 3: s++; break;
+                }
+            }
+			
+		function repetitive(checkRando) {
+			if (checkRando && !rando) {
+				return false;
+			}
+			const lastFew = player.slice(-6);
+			let reps = 0;
+			
+			for (let i = 0; i < 4; i++) {
+				if (player[i] = player[i + 1]) {
+					reps++;
+				}
+			}
+			
+			return reps >= 4;
+		}
+		
+		function counter(leSign) {
+			let counterSign = 0;
+			switch (leSign) {
+				case 1: counterSign = 2; break;
+				case 2: counterSign = 3; break;
+				case 3: counterSign = 1; break;
+			}
+			return counterSign;
+		}
+            
+            // Choose based on player's pattern
+			if ((playerScore >= 90) && (plays >= 75)) {
+				far = true;
+			}
+			if (far) {
+				rando = true;
+				minmaxing = false;
+				return (repetitive(false)) ? counter(player[plays]) : (Math.floor(Math.random() * 3) + 1);
+			} else {
+			
+				if (repetitive(true) || ((r !== p && r !== s) && !(wins > (plays / 4) && plays >= 75))) {
+					minmaxing = false;
+					if (r > p && r > s) {
+						return 2; // Player chooses rock most, so yala chooses paper
+					} else if (p > r && p > s) {
+						return 3; // Player chooses paper most, so yala chooses scissors
+					} else {
+						return 1; // Player chooses scissors most, so yala chooses rock
+					}
+				} else {
+					if ((rando || ((playerScore >= 24) && (plays >= 75))) && !repetitive(true)) {
+						rando = true;
+						minmaxing = false;
+						return Math.floor(Math.random() * 3) + 1;
+					}
+					else if (((r === p && r === s) || (wins > (plays / 4) && plays >= 65)) && !rando) {
+						minmaxing = true;
+						// Random strategy with weighted choices
+						const mRand = Math.floor(Math.random() * 6);
+						if (mRand < 1) {
+							return 3; // scissors
+						}
+						if (mRand > 0 && mRand < 3) {
+							return 1; // rock
+						}
+						return 2; // paper
+					}
+					if (r === p && !repetitive(false)) return 3; // scissors
+					else return (repetitive(false)) ? (Math.floor(Math.random() * 3) + 1) : 2; // paper
+				}
+			}
+        }
+		
+		function playM() {
+            let r = 0;
+            let p = 0;
+            let s = 0;
+            
+            for (let i = 150; i < plays; i++) {
+				if (i <= plays) {
+					if ((player[i] === player[plays]) && (yala[i] === yala[plays])) {
+						switch (player[i]) {
+							case 1: r++; break;
+							case 2: p++; break;
+							case 3: s++; break;
+						}
+					}
+                }
+            }
+			
+			if ((r !== p) && (r !== s)) {
+				if (r > p && r > s) {
+					return 2; // Player chooses rock most, so yala chooses paper
+				} else if (p > r && p > s) {
+					return 3; // Player chooses paper most, so yala chooses scissors
+				} else {
+					return 1; // Player chooses scissors most, so yala chooses rock
+				}
+			} else {
+				if ((playerScore >= 24) && (plays >= 75)) {
+					return Math.floor(Math.random() * 3) + 1;
+				}
+				else if ((r === p && r === s) || (wins > (plays / 4) && plays >= 185)) {
+					// Random strategy with weighted choices
+					const mRand = Math.floor(Math.random() * 6);
+					if (mRand < 1) {
+						return 3; // scissors
+					}
+					if (mRand > 0 && mRand < 3) {
+						return 1; // rock
+					}
+					return 2; // paper
+				}
+				if (r === p) return 3;
+				return 2;
+			}
+        }
+        
+        // End game function
+        function finish() {
+            if (playerScore > yalaScore) {
+                resultLabel.textContent = 'Game Over! You Won! A\'eala submits!';
+				yalaImage.src = "/aealaSubmit.jpg"
+            } else if (playerScore < yalaScore) {
+                resultLabel.textContent = 'Game Over! You Lost!';
+				yalaImage.src = "/aealaSwishyPwa.gif"
+            } else if (playerScore === yalaScore) {
+                resultLabel.textContent = 'Game Over! Tie! *yala hugs*';
+				yalaImage.src = "/aealaWeallyBlush.jpg"
+            }
+            rockButton.disabled = true;
+            paperButton.disabled = true;
+            scissorsButton.disabled = true;
+			enraged = false;
+			minmaxing = false;
+			wild = false;
+			rando = false;
+			far = false;
+			clucked = false;
+			leldritch = false;
+        }
+		
+		async function lelog() {
+			await sleep(4000);
+			resultLabel.textContent = '...I think my time daemon side was messin\' wit me, I um..';
+			await sleep(3500);
+			resultLabel.textContent = 'Sorta felt myself getting caught in some weird thought loops dere.';
+			await sleep(3500);
+			resultLabel.textContent = 'How about a rematch, den! Just lend me a lil\' mana...';
+			await sleep(4000);
+			resultLabel.textContent = 'Dere, now let\'s see if you can really impress me. ;3';
+			yalaImage.src = "/aealaBliss.jpg";
+			rockButton.disabled = false;
+			paperButton.disabled = false;
+			scissorsButton.disabled = false;
+		}
+		
+		async function leldlog() {
+			await sleep(4000);
+			resultLabel.textContent = "You thi̷n̵k̸ ỳ̵͓ȯ̵͈u̵̒͜ ̸̻͋ c̴̘̏a̶͔͛n̶͓̎ ̷͙͋d̸̨̬̳̠̐͐̓͗̓͒ë̶̙͖̳͚́f̷̫̦̦͐͆͆̕͝ỳ̴̲̟͜͝ m̶̢̛̈y š̶̢͉̙͍̐̔͜ͅḯ̷̳̀͋̏̈́g̶̪͈̤͉͎̬̤͂͛h̸͇̀͝t̵̳͆͜, M̴̨͔̞̼̯̣̞̀Ǫ̴̺͇͚͈̥̭̬͕͙͚̩̱̜̲͙͍͖̪̲̮͚͓̥͓͓̩̬͖͉̲̰͈̋̊́͑̽̓͋͆̅̇͑̈́͊̀̈́̈́̔͑̎̓̈́̀̈́̏̐͑͒̈́̋̑̓̄̄͗̓̚͠͝͠͠͝͝ͅR̷̛̛̙̠̟͇̂̈́̃̐̉͋̅͐̇̈͊̽́̅͂́͊͆̑̐̈́̾̋͊̈̊͌̇̌̊̏̿͋̑͘̚͘͠͝Ţ̴̨̢̛̛̘͕̪̮͖͖͙̰̪̻͎̝͔̝͔̫̦͕͔̤͖̘̗͍̦͉̹̦͒̔̌͆̈́̌͛͂̽͒͗͋̽̏̆̀̉́̑̒̓̒̉̉͗̀̃͑͛̈́̾̕̚̚̕͜͜͝͝͠͝͝͝ͅǍ̷̧̧̪̘̹͖̖̟͈̭̬̱̟͓̰̮̤̣͉̖̞̰̯̤̪̜̟̝͉̬̘̈̒͊̋́̓͊̀̓̈́̓̂̈́̏͐̔̃͑͂̈́̀͘L̴̢͍̲̻̻̞͕̮͔̹̣̲͉͗̑ͅ?̵̮͙͖̰̘͇̻̿̂̀̐̀̓͋͑͊̓̂́̊̋̊́̎͂̀̌̊͑̋̐̔̾̉͊̿̅̂͆͌̒͂͆̀͗̄̋̕͘͝͠͠͠ ?"
+			await sleep(4500);
+			resultLabel.textContent = "N̷͇̻̣̖̙̙̒̈́̌̒̔̈̚͝ȍ̵̹͈.̸̘̬͉̦̬̘̿̇̍";
+			await sleep(3500);
+			resultLabel.textContent = "I̷͇̝̹̻̊̋͂̒ s̸̹̣̀e̶̢͔̺̙̗͔̰͆e y̷̖͍͆ò̴̮̩͒̔͐̕u̷̞͖̰̘̲̅͟͜ͅ sò̷̖̃́ c̷̢̨͇̮̙͇̗̳̋͒̆͜͟l̸̛̘͓̲̙͖̄̈́̌͑͒̅̉͗̾̅͊̿̓͗͗͑̽͜e̴̡͓͙͕̮̲̙̦̝̙̪̤̝͕̘͖̺̎ͅȁ̶̡̧̗̙̯̙̹̹̗̖̜̦̱̺̱̜̑͂͌̅̉̐̍̏͋̈́̅̈́͐̄̾̅͘̚͠r̶͇̜̭͔͓̥̼͕̼̗̍̎̓̿̉̂̂̂̾͑̂̌̂̇̄l̸̛͓̱̟̣̠̮̖̺͈̬͔̙̥̪̗̓͛̿͌͋͊͜͠ͅý̵̺͊̅͑̀̔̓͐̀͐̆͛̿́́͐̈́͑ ǹ̶̘̥̩͚̦̲̖͇̓͑̀̔̅̒̅͘͠ͅͅͅo̴̡͙͉̲͖͚̬͕̫̤̊̂̓͒̔̈́̿̒̉̍̉̑̽̀̓̓͒̒͟͜ͅẉ̷̢̢̭̳̰̯͖̹̬̖̠̪͉̪͎̿̏̉̈́̊̽͠.̷̩̤͖̗̝̒͊ . . ."
+			await sleep(1500);			
+			rockButton.disabled = false;
+			paperButton.disabled = false;
+			scissorsButton.disabled = false;
+		}
+        
+        // Handle player moves
+        function handleMove(playerMove) {
+            player[plays] = playerMove;
+            
+            if (plays < 3) {
+                yalaSign = Math.floor(Math.random() * 3) + 1; // Yala always plays rock for first 3 moves
+            } else if (plays < 169){
+                // After first part, use the better Markov logic at else.
+                yalaSign = play();
+            } else {
+				yalaSign = playM();
+				if (!lelogged)
+				{
+					enraged = false;
+					minmaxing = false;
+					wild = false;
+					rando = false;
+					far = false;
+					clucked = false;
+					mmode = true;
+					leldritch = false;
+					playerScore = 0;
+					yalaScore = 0;
+					wins = 0;
+					losses = 0;
+				}
+			}
+			yala[plays] = yalaSign;
+            
+            const yalaRoundScore = calcScore(yalaSign, playerMove);
+            const playerRoundScore = calcScore(playerMove, yalaSign);
+            
+            // Update result and score
+            if (yalaRoundScore > playerRoundScore) {
+                resultLabel.textContent = 'Loss!';
+                losses++;
+                lossLabel.textContent = losses;
+                // Change image to loss image
+                yalaImage.src = "/aealaSmug.jpg";
+                gameStatus.isWinning = false;
+                gameStatus.updated = true;
+            }
+            
+            if (yalaRoundScore < playerRoundScore) {
+                resultLabel.textContent = 'Win!';
+                wins++;
+                winLabel.textContent = wins;
+                // Change image to win image
+                yalaImage.src = "/aealaWeallyBlush.jpg";
+                gameStatus.isWinning = true;
+                gameStatus.updated = true;
+            }
+            
+            if (yalaRoundScore === playerRoundScore) {
+                resultLabel.textContent = 'Tie!';
+            }
+			
+			if (minmaxing && !enraged) {
+				if (plays > 40) {
+					enraged = true;
+					resultLabel.textContent = 'NO! I won\'t let you!';
+					yalaImage.src = "/aealaEnraged.jpg";
+				}
+			}
+			
+			if (rando && !wild) {
+				wild = true;
+				resultLabel.textContent = 'STOP IIIT! I.. I\'ll win! You\'ll see!!';
+				yalaImage.src = "/aealaWild.jpg";
+			}
+			
+			if (mmode) {
+				resultLabel.textContent = 'Oh? I lost... Pwiiiiiiiiiiii! >~< Well good jobs, I guessies...';
+				yalaImage.src = "/aealaWeallyBlush.jpg";
+				rockButton.disabled = true;
+				paperButton.disabled = true;
+				scissorsButton.disabled = true;
+				lelog();
+				mmode = false;
+				lelogged = true;
+			}
+			
+			if (far) {
+				yalaImage.src = "/aealaFarGone.png";
+				if (!leldritch) {
+					rockButton.disabled = true;
+					paperButton.disabled = true;
+					scissorsButton.disabled = true;
+					resultLabel.textContent = '...';
+					leldlog();
+					leldritch = true;
+				}
+			}
+            
+            // Update game state
+            plays++;
+            yalaScore += yalaRoundScore;
+            playerScore += playerRoundScore;
+            playerScoreDisplay.textContent = playerScore;
+            yalaScoreDisplay.textContent = yalaScore;
+            
+            // Check if game should end
+            if (((plays === 169) && playerScore < yalaScore) || plays === 256) {
+                finish();
+            }
+        }
+        
+        // Track if player is winning for image click
+        let gameStatus = {
+            isWinning: false,
+            updated: false
+        };
+        
+        // Event Listeners
+        rockButton.addEventListener('click', () => handleMove(1));
+        paperButton.addEventListener('click', () => handleMove(2));
+        scissorsButton.addEventListener('click', () => handleMove(3));
+        
+        image1.addEventListener('click', () => {
+            // Display different message based on win/loss status
+			if (far) {
+				resultLabel.textContent = "D̷̫̗̭͉͋̀͜o̸̰̻͔̯͝ ̷̣̼͎̈́̎̇͐y̷̮̕ó̷̲ṷ̵́ ̵͈͋w̴͍̄a̷͇̾n̷̰̽t̷͉̿ ̵̹̦͕̣͎͛̉̈́̎t̸͔̓͐͝o̴̧̙͇͍̯̓̏͒͘ ̴̛̱͈̜͎͎̮̝͌͗͌̐̈́͊̈͗͆́́́̈͂̽͐̄̂͘̕͠͠ḑ̷̩̬͇̲͖̰̱̠̮̖̜̪̱̲̳͙͇̈̊̈̈́͆̆̒̃̒͊̑̈́̓͌̓͆̓̕̕͘̚͜ï̷͉̝̪̾̑̑̾̓̿̌͌̆̆̌̒̆͋̎̃̄̑̀͒͌͝ͅe̶͙̙̖̻̕,̸̫͛̍ ̶̳͍̲̈́͝m̷̰̯̮͙̦̅ǫ̷̧̣͇̋ṛ̷̨̢͓͙̈́t̴̪̪̒͂̏̋͠ǎ̷̘̙͈̗͐ļ̶̹̜̙̥̎?̶̺͍̑̌̽";
+			} else {
+				if (wild) {
+					resultLabel.textContent = 'Pwaa!!! I said no! *bites*';
+				} else if (minmaxing) {
+					if (!clucked) {
+						resultLabel.textContent = 'Pwii!!! No! *hisses*';
+						clucked = true;
+					} else {
+						resultLabel.textContent = 'Pwii!!! I said no! *bites*';
+					}
+				} else {
+					if (gameStatus.updated && !gameStatus.isWinning) {
+						resultLabel.textContent = 'Pwa~ >:3';
+					} else {
+						resultLabel.textContent = 'Pwii! >~<';
+					}
+				}
+			}
+        });
+    </script>
+</body>
+</html>
